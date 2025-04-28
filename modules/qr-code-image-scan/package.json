@@ -1,0 +1,19 @@
+{
+  "name": "react-native-qr-code-image-scan",
+  "version": "0.0.0",
+  "description": "scan qr",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "RNQrCodeImageScanSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "author": " <> ()",
+  "license": "UNLICENSED",
+  "homepage": "#readme",
+  "create-react-native-library": {
+    "type": "turbo-module",
+    "languages": "cpp",
+    "version": "0.48.3"
+  }
+}

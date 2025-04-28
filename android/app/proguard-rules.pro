@@ -8,3 +8,7 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-dontwarn com.google.mlkit.vision.barcode.**
+-dontwarn com.google.mlkit.vision.common.internal.Detector
+-keep class org.reactnative.camera.tasks.BarcodeDetectorAsyncTask { *; }
+
