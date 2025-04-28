@@ -1,0 +1,22 @@
+//Login
+http://192.168.1.19/biznets/login.sof.vn/?txtUserName=007&txtPassword=1
+//Link  lay du lieu ca nhan nhan vien
+http://192.168.1.19/biznets/services.sof.vn/?table=hr_lv0020&func=&id=007&limit=&code=007&token=0000000000000000
+
+//Link them 1 don xin phep
+http://192.168.1.19/biznets/services.sof.vn/?table=jo_lv0004&func=add&id=007&limit=&code=007&token=CQKI075zh79K800i&lv015=007&lv002=CaA&lv003=P&lv008=C%20AB&lv016=2025-02-19&lv017=2025-02-19&lv021=0&lv022=0
+
+//Link lay luong 1 thang
+http://192.168.1.19/biznets/services.sof.vn/?table=tc_lv0020&func=data&id=007&limit=&code=007&token=CQKI075zh79K800i&lv002=007&month=10&year=2019
+
+//Link lay cong 1 thang
+http://192.168.1.19/biznets/services.sof.vn/?table=tc_lv0011&func=data&id=007&limit=&code=007&token=CQKI075zh79K800i&lv002=007&month=10&year=2019
+
+
+///Lay du lieu ca nhan thong ke
+http://192.168.1.19/biznets/services.sof.vn/?table=hr_lv0106&func=&id=20000001&limit=&code=20000001&token=0000000000000000&month=10&year=2019&kytinh=1
+
+//Lenh cap quyen folder
+sudo chmod -R 777 /Applications/XAMPP/xamppfiles/htdocs/services.sof.vn
+
+npm install --legacy-peer-deps
