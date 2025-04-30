@@ -39,4 +39,31 @@ export const loadData = async (token, code, func, wh_id, status) => {
     }
 };
 
+export const updateData = async (token, code, func, wh_id, pallet_id, user06) => {
+    try {
+        //console.log(token, code, func, wh_id, pallet_id, user06);
+        
+        const response = await layhang.post(constants.API_URLS.SERVICES, { token, code, func, wh_id, pallet_id, user06}, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
+
+        //console.log(response.data.success);
+
+        if (response.data.success) {
+            return { success: true};
+        } else {
+            return { success: false, message: 'Đã cập nhật sang trạng thái xử lý hàng thành công' };
+        }
+    } catch (error) {
+        console.log('Request URL:', error.config.url);
+        if (error.stack) {
+            console.log('Error stack:', error.stack); 
+        }
+        return { success: false, message: 'Đã có lỗi xảy ra, vui lòng thử lại' };
+    }
+};
+
 export default layhang;

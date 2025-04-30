@@ -5,11 +5,11 @@ const nhansanpham = axios.create({
     baseURL: constants.baseUrl,
 });
 
-export const loadData2 = async (token, code, func, wh_id, coke, zone, pallettypeid) => {
+export const loadData2 = async (token, code, func, wh_id, coke, zone, pallettypeid, batch) => {
     try {
         const result = {};
         console.log(token, code, wh_id, coke, zone, pallettypeid);
-        const response = await nhansanpham.post(constants.API_URLS.SERVICES, { token, code, func, wh_id, coke, zone, pallettypeid}, {
+        const response = await nhansanpham.post(constants.API_URLS.SERVICES, { token, code, func, wh_id, coke, zone, pallettypeid, batch}, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/x-www-form-urlencoded',

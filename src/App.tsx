@@ -28,6 +28,8 @@ import xu_ly_hang from './components/xu-ly-hang/xu_ly_hang';
 import chi_tiet_don_hang from './components/chi-tiet-don-hang/chi_tiet_don_hang';
 import { getGenericPassword } from 'react-native-keychain'; // Lấy thông tin người dùng từ Keychain
 import Loading from './components/Loading';
+import WarehouseMapScreen from './components/bo-tri-kho/WarehouseMapScreen';
+import ElectronicScaleScreens_v2 from './views/ElectronicScaleScreens_v2';
 
 const Stack = createStackNavigator();
 
@@ -145,8 +147,18 @@ function App(): React.JSX.Element {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="layout13"
+          component={WarehouseMapScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="detail"
           component={chi_tiet_don_hang}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="layout14"
+          component={ElectronicScaleScreens_v2}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

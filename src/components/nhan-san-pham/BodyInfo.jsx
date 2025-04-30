@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, FlatList , ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
 import { loadData } from '../../services/demhang';
@@ -12,6 +12,7 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
     const [selectedPosition, setSelectedPosition] = useState('');
     const [selectedPallet, setSelectedPallet] = useState('');
     const [selectedItemCode, setSelectedItemCode] = useState('');
+    const [batch, setBatch] = useState('');
     const [boxes, setBoxes] = useState([]);
     const [sl, setSLs] = useState('');
     const [productQuality, setProductQuality] = useState(0);
@@ -56,6 +57,7 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
                 id: item[0],
                 netWeight: item[1],
                 grossWeight: item[2],
+                batch: item[3]
             }));
             setBoxes(processedBoxes);
             setSLs(processedBoxes.length.toString());
@@ -67,6 +69,8 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
 
             const lv002 = result1.data.data[0].lv002;
             const lv003 = result1.data.data[0].lv003;
+            //const lv005 = result1.data.data[0].lv005;
+            setBatch(result1.data.data[0].lv008);
 
             if (lv003 == 0) {
                 setSelectedItemCode('1 mã hàng');
@@ -102,9 +106,9 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
         }
 
         if (isSelected2) {
-            zone = 'SHIPPING LANE';
+            zone = 'PRC';
         } else {
-            zone = 'THÀNH PHẨM';
+            zone = 'TP1';
         }
 
         if (selectedPallet === '1 thùng') {
@@ -119,7 +123,7 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
 
         //console.log(token, wh_id, coke, zone, pallettypeid);
 
-        const result = await loadData2(token, '0210', 'select', wh_id, coke, zone, pallettypeid);
+        const result = await loadData2(token, '0210', 'select', wh_id, coke, zone, pallettypeid, batch);
         //console.log(result);
         //console.log(Object.keys(result.data).length);
         //console.log(Object.keys(result.data));
@@ -283,20 +287,25 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
             </View>
 
             {/* Render Box List */}
-            <View style={styles.boxContainer}>
-                <View style={styles.boxHeader}>
-                    <Text style={styles.boxColumnHeader}>ID</Text>
-                    <Text style={styles.boxColumnHeader}>Net Weight</Text>
-                    <Text style={styles.boxColumnHeader}>Gross Weight</Text>
-                </View>
-                {boxes.map((box, index) => (
-                    <View key={index} style={styles.boxRow}>
-                        <Text style={styles.boxColumn}>{box.id}</Text>
-                        <Text style={styles.boxColumn}>{box.netWeight}</Text>
-                        <Text style={styles.boxColumn}>{box.grossWeight}</Text>
+            <ScrollView horizontal={true} style={styles.boxContainer}>
+                <View >
+                    <View style={styles.boxHeader}>
+                        <Text style={styles.boxColumnHeader}>ID</Text>
+                        <Text style={styles.boxColumnHeader}>Net Weight</Text>
+                        <Text style={styles.boxColumnHeader}>Gross Weight</Text>
+                        <Text style={styles.boxColumnHeader}>Batch</Text>
                     </View>
-                ))}
-            </View>
+                    {boxes.map((box, index) => (
+                        <View key={index} style={styles.boxRow}>
+                            <Text style={styles.boxColumn}>{box.id}</Text>
+                            <Text style={styles.boxColumn}>{box.netWeight}</Text>
+                            <Text style={styles.boxColumn}>{box.grossWeight}</Text>
+                            <Text style={styles.boxColumn}>{box.batch}</Text>
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
+
 
             {/* Modal to select Pallet */}
             <Modal
@@ -486,7 +495,7 @@ const styles = StyleSheet.create({
     boxColumnHeader: {
         fontWeight: 'bold',
         fontSize: 18,
-        width: '32%',
+        minWidth: 120,
         textAlign: 'center',
         color: '#737373',
     },
@@ -496,8 +505,9 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     boxColumn: {
+        minWidth: 100,
         fontSize: 16,
-        width: '30%',
+        minWidth: 120,
         textAlign: 'center',
     },
     // Modal Styles

@@ -35,17 +35,18 @@ export const updateData = async (token, code, func, wh_id, user06, pallet_id) =>
     try {
         const response = await lenke.post(constants.API_URLS.SERVICES, { token, code, func, wh_id, user06, pallet_id }, {
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         });
-        //console.log(response.data.success);
+        //console.log(response);
         if (response.data.success) {
             return { success: true};
         } else {
             return { success: false, message: 'Lên kệ thất bại' };
         }
     } catch (error) {
-        return { success: false, message: 'Đã có lỗi xảy ra, vui lòng thử lại' };
+        return { success: false, message: error };
     }
 };
 

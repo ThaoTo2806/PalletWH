@@ -35,6 +35,7 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, l
 
   const updatePallets = async () => {
     const result = await updateData(token, '0279', 'update', wh_id, user06, input2);
+    console.log(result);
     if (result.success) {
       Alert.alert('Thông báo', 'Lên kệ thành công');
       setInput1('');

@@ -1,37 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Modal, FlatList, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { loadData } from '../../services/layhang';
+import { loadData, updateData } from '../../services/layhang';
 
-export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name }) {
+export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name, latestScannedData }) {
+  const [input1, setInput1] = useState('');
+  const [input2, setInput2] = useState('');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchData = async () => {
+    try {
+      const response = await loadData(token, '0010', 'select2', wh_id, 'PKG');
+
+      if (response.success && response.data) {
+        const transformedData = Object.keys(response.data).map(key => ({
+          orderPosition: key,
+          poNumber: response.data[key],
+        }));
+        setData(transformedData);
+      } else {
+        setError('No data found');
+      }
+    } catch (err) {
+      setError('Đã có lỗi xảy ra, vui lòng thử lại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch data only when component is mounted and dependencies change
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await loadData(token, '0010', 'select2', wh_id, 'PKG');
-
-        if (response.success && response.data) {
-          const transformedData = Object.keys(response.data).map(key => ({
-            orderPosition: key,
-            poNumber: response.data[key],
-          }));
-          setData(transformedData);
-        } else {
-          setError('No data found');
-        }
-      } catch (err) {
-        setError('Đã có lỗi xảy ra, vui lòng thử lại');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (latestScannedData) {
+      const [data1, data2] = latestScannedData.split('|');
+      setInput1(data1);
+      setInput2(data2);
+      updatePallets(data1);
+    }
 
     fetchData();
-  }, [token, wh_id]); // only re-fetch data if token or wh_id changes
+  }, [token, wh_id, latestScannedData]); // only re-fetch data if token or wh_id changes
 
   // Ensure modal logic does not affect hook consistency
   const positions = ['Tất cả', ...new Set(data.map(item => item.orderPosition))];
@@ -48,6 +57,24 @@ export default function BodyInfo({ token, user, userN, user06, wh_id, wh_name })
       setFilteredData(data.filter(item => item.orderPosition.includes(position)));
     }
   };
+
+  const updatePallets = async (data1) => {
+      const result = await updateData(token, '0010', 'update', wh_id, data1, user06);
+      console.log(result.success);
+      if (result.success) {
+        await fetchData();
+        if (selectedPosition === 'Tất cả') {
+          setFilteredData(data);
+        } else {
+          setFilteredData(data.filter(item => item.orderPosition.includes(selectedPosition)));
+        }
+        Alert.alert('Thông báo', 'ĐƯA QUA XỬ LÝ HÀNG THÀNH CÔNG');
+        setInput1('');
+        setInput2('');
+      } else {
+        Alert.alert('Lỗi', result.message);
+      }
+    };
 
   // Only show loading if data is still being fetched
   if (loading) {

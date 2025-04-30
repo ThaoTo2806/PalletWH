@@ -1,8 +1,18 @@
 import { SafeAreaView, ScrollView, View, Text } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react';
 import CustomHeader1 from '../CustomHeader1'
 
-export default function thay_doi_don_hang({ navigation }) {
+export default function thay_doi_don_hang({ route, navigation }) {
+  const { token, user, userN, user06, wh_id, wh_name, ser, ver } = route.params;
+    const [latestScannedData, setLatestScannedData] = useState(null);
+    const [triggerScan, setTriggerScan] = useState(false);
+    const handleScan = (data) => {
+      setLatestScannedData(data);
+      console.log('Received Scanned Data:', data);
+    };
+    const handleTriggerScan = () => {
+      setTriggerScan(true); // Kích hoạt quét mã
+    };
   return (
     <SafeAreaView>
       <CustomHeader1 title="Thay đổi đơn hàng" navigation={navigation} token={token}
