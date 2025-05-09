@@ -11,7 +11,8 @@ $wh_id = isset($wh_id) ? $wh_id : '';
 $func = isset($func) ? $func : '';
 $status = isset($status) ? $status : '';
 $po = isset($po) ? $po : '';
-if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
+$pallet_id = isset($pallet_id) ? $pallet_id : '';
+if ($code != '' && $func != '' && $wh_id != '') {
     switch ($func) {
         case 'select':
             $query = "
@@ -28,6 +29,21 @@ if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
                       FROM `wh_lv0279` 
                       join wh_lv0010 on wh_lv0010.lv006 = wh_lv0279.lv014
                       WHERE wh_lv0279.lv014 IS NOT NULL AND wh_lv0010.lv002 = '$wh_id' AND wh_lv0010.lv013 = '$status'";
+            break;
+        case 'update':
+            $query1 = "SELECT lv014 FROM wh_lv0279 WHERE lv001 LIKE '$pallet_id'";
+            $res1 = db_query($query1);
+
+            if ($res1 && db_num_rows($res1) > 0) {
+                $row1 = db_fetch_assoc($res1);
+                $po1 = $row1['lv014'];
+
+                $query = "UPDATE `wh_lv0010`
+                             SET lv013 = 'PRC', lv011 = '$user06', lv009 = NOW()
+                             WHERE lv006 = '$po1' AND lv002 = '$wh_id'";
+            } else {
+                echo json_encode(['error' => "Không tìm thấy PO tương ứng với pallet_id: $pallet_id"]);
+            }
             break;
         default:
             echo json_encode(['error' => 'Invalid function']);
@@ -49,9 +65,7 @@ if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
         echo json_encode(['error' => 'Database query failed']);
     }
 } else {
-    if ($token == '')
-        echo json_encode(['error' => 'Token missing']);
-    else if ($code == '')
+    if ($code == '')
         echo json_encode(['error' => 'Code missing']);
     else if ($func == '')
         echo json_encode(['error' => 'Function missing']);

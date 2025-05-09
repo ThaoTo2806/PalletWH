@@ -1,8 +1,8 @@
 <?php
 define("DB_SERVER","localhost");
 define("DB_USER","root");
-define("DB_PWD","");
-define("DB_DATABASE","wh_benthanhhousev3_0");
+define("DB_PWD","123456");
+define("DB_DATABASE","wh_benthanhhousev3_1");
 define ("No_Date_Default","1900-01-01");
 global $pListFolder;
 date_default_timezone_set('Asia/Krasnoyarsk');

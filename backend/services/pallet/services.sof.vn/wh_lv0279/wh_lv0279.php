@@ -25,23 +25,112 @@ if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
             break;
 
         case 'select1':
-            $vsql = "SELECT `wh_lv0281`.lv001, `wh_lv0281`.lv003, `wh_lv0281`.lv004
-                     FROM `wh_lv0281`
-                     JOIN `wh_lv0280` ON `wh_lv0281`.`lv001` = `wh_lv0280`.`lv003`
-                     WHERE `wh_lv0280`.`lv002` LIKE '$pallet_id'";
+            $vsql = "SELECT `wh_lv0281`.`lv001` AS 'lv002', `wh_lv0279`.`lv006` AS 'lv003', `wh_lv0279`.`lv007` AS 'lv005', `wh_lv0281`.`lv002` AS 'lv006'
+FROM `wh_lv0279`
+lEFT JOIN `wh_lv0280` ON `wh_lv0279`.`lv001` = `wh_lv0280`.`lv002`
+lEFT JOIN `wh_lv0281` ON `wh_lv0281`.`lv001` = `wh_lv0280`.`lv003`
+WHERE `wh_lv0279`.`lv001` LIKE '$pallet_id'";
             break;
 
         case 'select2':
-            $vsql = "SELECT `lv002`, `lv003`
+            $vsql = "SELECT `lv002`, `lv003`, `lv008`
                          FROM `wh_lv0279`
                          WHERE `lv001` LIKE '$pallet_id'";
             break;
 
-        case 'update':
-            $vsql = "UPDATE `wh_lv0279`
-                     SET `lv013` = 2, `lv009` = '$user06',  `lv010` = NOW()
-                     WHERE `lv001` = '$pallet_id'";
-            break;
+            case 'update':
+                $query1 = "SELECT wh_lv0281.lv002 AS lv006, wh_lv0281.lv005 AS lv007
+                           FROM wh_lv0279
+                           LEFT JOIN wh_lv0280 ON wh_lv0279.lv001 = wh_lv0280.lv002
+                           LEFT JOIN wh_lv0281 ON wh_lv0281.lv001 = wh_lv0280.lv003
+                           WHERE wh_lv0279.lv001 LIKE '$pallet_id'";
+                $res1 = db_query($query1);
+    
+                $debugInfo = []; // Mảng lưu thông tin debug
+    
+                if ($res1 && db_num_rows($res1) > 0) {
+                    $allSuccess = true;
+    
+                    while ($row1 = db_fetch_array($res1)) {
+                        $A = $row1['lv006'];
+                        $B = $row1['lv007'];
+    
+                        $query2 = "SELECT lv002 FROM wh_lv0009 WHERE lv003 LIKE '$B' AND lv014 LIKE '$A'";
+                        $res2 = db_query($query2);
+    
+                        if ($res2 && db_num_rows($res2) > 0) {
+                            $row2 = db_fetch_array($res2);
+                            $C = $row2['lv002'];
+    
+                            // $query3 = "SELECT count(*) AS SL FROM wh_lv0279
+                            //            LEFT JOIN wh_lv0280 ON wh_lv0279.lv001 = wh_lv0280.lv002
+                            //            LEFT JOIN wh_lv0281 ON wh_lv0281.lv001 = wh_lv0280.lv003
+                            //            WHERE wh_lv0279.lv001 LIKE '$pallet_id'";
+                            // $res3 = db_query($query3);
+                            // $row3 = db_fetch_array($res3);
+                            // $SL = $row3['SL'];
+    
+                            $currentDate = date("Ymd");
+                            $lv888 = "NK_PALLET_" . $currentDate . "_" . $C;
+                            $update0008 = "UPDATE wh_lv0279
+                                 SET lv555 = '$lv888'
+                                 WHERE lv001 = '$pallet_id'";
+    
+                            // $update0008 = "UPDATE wh_lv0008 
+                            //                SET lv777 = lv777 + $SL, lv888 = '$lv888' 
+                            //                WHERE lv001 = '$C'";
+                            $res4 = db_query($update0008);
+    
+                            // Ghi debug
+                            $debugInfo[] = [
+                                'A' => $A,
+                                'B' => $B,
+                                'C' => $C,
+                                'SL' => $SL,
+                                'SQL' => $update0008,
+                                'update0008_success' => $res4 ? true : false
+                            ];
+    
+                            if (!$res4) {
+                                echo json_encode([
+                                    'error' => 'Cập nhật wh_lv0008 thất bại',
+                                    'debug' => $debugInfo
+                                ]);
+                                $allSuccess = false;
+                                break;
+                            }
+                        } else {
+                            $debugInfo[] = [
+                                'A' => $A,
+                                'B' => $B,
+                                'C' => null,
+                                'SL' => null,
+                                'SQL' => null,
+                                'update0008_success' => false,
+                                'reason' => "Không tìm thấy bản ghi trong wh_lv0009 với A=$A và B=$B"
+                            ];
+                            echo json_encode([
+                                'error' => "Không tìm thấy bản ghi phù hợp trong wh_lv0009",
+                                'debug' => $debugInfo
+                            ]);
+                            $allSuccess = false;
+                            break;
+                        }
+                    }
+    
+                    if ($allSuccess) {
+                        $vsql = "UPDATE wh_lv0279
+                                 SET lv013 = 2, lv009 = '$user06', lv010 = NOW()
+                                 WHERE lv001 = '$pallet_id'";
+                    }
+                } else {
+                    echo json_encode([
+                        'error' => 'Không có dữ liệu từ query1',
+                        'debug' => $debugInfo
+                    ]);
+                }
+                break;
+    
 
         case 'update1':
             // Bước 1: Kiểm tra xem vị trí có tồn tại trong kho hay không

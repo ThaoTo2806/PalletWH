@@ -4,7 +4,7 @@ import React from 'react';
 const items = [
   'Nhận sản phẩm', 'Lên kệ', 'Lấy hàng', 'Xử lý hàng', 
   'Hoàn tất đơn hàng', 'Trả về kệ', 'Thay đổi đơn hàng', 'Đổi vị trí', 
-  'Sắp xếp hàng', 'Đếm hàng', 'In lại', 'Máy in', 'Bố trí kho', 'Đóng gói'
+  'Sắp xếp hàng', 'Đếm hàng', 'In lại', 'Máy in', 'Bố trí kho'
 ];
 
 export default function ListFolder({ navigation, token, user, userN, user06, wh_id, wh_name, ser, ver }) {

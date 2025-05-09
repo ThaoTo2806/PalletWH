@@ -13,23 +13,74 @@ $pallettypeid = isset($pallettypeid) ? $pallettypeid : '';
 $zone = isset($zone) ? $zone : '';
 $func = isset($func) ? $func : '';
 $position = isset($position) ? $position : '';
+$batch = isset($batch) ? $batch : '';
+
+$batch_condition = '';
+if (!empty($batch)) {
+    $batch_list = explode(',', $batch);
+    $like_conditions = [];
+    foreach ($batch_list as $b) {
+        $b = trim($b);
+        if ($b !== '') {
+            $like_conditions[] = "wh_lv0281.lv005 LIKE '%$b%'";
+        }
+    }
+    if (count($like_conditions) > 0) {
+        $batch_condition = 'AND (' . implode(' OR ', $like_conditions) . ')';
+    }
+}
+
 if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
     switch ($func) {
         case 'select':
             $query = "
-        SELECT wh_lv0210.lv001 AS 'position'
-        FROM wh_lv0210
-        JOIN wh_lv0207 ON wh_lv0207.lv001 = wh_lv0210.lv002
-        JOIN wh_lv0222 ON wh_lv0222.lv001 = wh_lv0207.lv006
-        JOIN wh_lv0216 ON wh_lv0216.lv001 = wh_lv0207.lv007
-        LEFT JOIN wh_lv0278 AS wh_lv0278_1 ON wh_lv0278_1.lv001 = wh_lv0210.lv005
-        LEFT JOIN wh_lv0278 AS wh_lv0278_2 ON wh_lv0278_2.lv001 = wh_lv0210.lv003
-        WHERE
-            wh_lv0222.lv002 LIKE '$coke'
-            AND wh_lv0210.lv005 LIKE '$pallettypeid'
-            AND wh_lv0216.lv003 LIKE '$zone'
-            AND wh_lv0210.lv003 = 1
-            AND wh_lv0207.lv010 LIKE '$wh_id' ";
+        (
+    SELECT wh_lv0210.lv001 AS 'position'
+    FROM wh_lv0210
+    JOIN wh_lv0207 ON wh_lv0207.lv001 = wh_lv0210.lv002
+    JOIN wh_lv0222 ON wh_lv0222.lv001 = wh_lv0207.lv006
+    JOIN wh_lv0216 ON wh_lv0216.lv001 = wh_lv0207.lv007
+    LEFT JOIN wh_lv0278 AS wh_lv0278_1 ON wh_lv0278_1.lv001 = wh_lv0210.lv005
+    LEFT JOIN wh_lv0278 AS wh_lv0278_2 ON wh_lv0278_2.lv001 = wh_lv0210.lv003
+    JOIN wh_lv0279 ON wh_lv0278_1.lv001 = wh_lv0279.lv002
+    LEFT JOIN wh_lv0280 ON wh_lv0279.lv001 = wh_lv0280.lv002 
+    LEFT JOIN wh_lv0281 ON wh_lv0281.lv001 = wh_lv0280.lv003
+    WHERE
+        wh_lv0222.lv002 LIKE '$coke'
+        AND wh_lv0210.lv005 LIKE '$pallettypeid'
+        AND wh_lv0207.lv007 LIKE '$zone'
+        AND wh_lv0210.lv003 = 1
+        AND wh_lv0207.lv010 LIKE '$wh_id'
+        AND wh_lv0281.lv005 LIKE '$batch'
+        $batch_condition
+    LIMIT 1
+)
+UNION ALL
+(
+    SELECT wh_lv0210.lv001 AS 'position'
+    FROM wh_lv0210
+    JOIN wh_lv0207 ON wh_lv0207.lv001 = wh_lv0210.lv002
+    JOIN wh_lv0222 ON wh_lv0222.lv001 = wh_lv0207.lv006
+    JOIN wh_lv0216 ON wh_lv0216.lv001 = wh_lv0207.lv007
+    LEFT JOIN wh_lv0278 AS wh_lv0278_1 ON wh_lv0278_1.lv001 = wh_lv0210.lv005
+    LEFT JOIN wh_lv0278 AS wh_lv0278_2 ON wh_lv0278_2.lv001 = wh_lv0210.lv003
+    JOIN wh_lv0279 ON wh_lv0278_1.lv001 = wh_lv0279.lv002
+    LEFT JOIN wh_lv0280 ON wh_lv0279.lv001 = wh_lv0280.lv002 
+    LEFT JOIN wh_lv0281 ON wh_lv0281.lv001 = wh_lv0280.lv003
+    WHERE
+        wh_lv0222.lv002 LIKE '$coke'
+        AND wh_lv0210.lv005 LIKE '$pallettypeid'
+        AND wh_lv0207.lv007 LIKE '$zone'
+        AND wh_lv0210.lv003 = 1
+        AND wh_lv0207.lv010 LIKE '$wh_id'
+    ORDER BY
+        SUBSTRING_INDEX(position, '-', -1) ASC,  -- Ưu tiên mặt A, B, C...
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(position, '-', -2), '-', 1) AS UNSIGNED) ASC,  -- Ưu tiên mã tầng thấp nhất
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(position, '-', -3), '-', 1) AS UNSIGNED) ASC,  -- Nếu tầng bằng nhau, xét mã cột thấp nhất
+        CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(position, '-', -4), '-', 1) AS UNSIGNED) ASC  -- Nếu cột bằng nhau, xét mã line thấp nhất
+    LIMIT 1
+)
+LIMIT 1";
             break;
         case 'update':
             $query = "UPDATE wh_lv0279
@@ -42,7 +93,7 @@ if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
                      WHERE lv001 = '$pallet_id'";
             break;
         default:
-            echo json_encode(['error' => 'Invalid function']);
+            echo json_encode(['error' => 'Invalid function']); 
             exit;
     }
 
@@ -58,7 +109,7 @@ if ($token != '' && $code != '' && $func != '' && $wh_id != '') {
             echo json_encode(['success' => true]);
         }
     } else {
-        echo json_encode(['error' => 'Database query failed']);
+        echo json_encode(['details' => sof_error()]);
     }
 } else {
     if ($token == '')
